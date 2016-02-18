@@ -199,9 +199,12 @@ class TBCover extends AbstractBundle
                     'description'       => 'Point to a valid screenshot image to be used as "how your site looks' .
                         ' on desktop"',
                     'default'           => false,
+                    'filter'            => function($value) {
+                        return 'false' == strtolower($value) ? false : $value;
+                    },
                     'validator'         => function($value) {
                         if(false !== $value && !is_file($value)) {
-                            throw new \Exception('Value must either false, or a path to a valid file');
+                            throw new \Exception('Value must either be false, or a path to a valid file');
                         }
                         return $value;
                     }
@@ -210,9 +213,12 @@ class TBCover extends AbstractBundle
                     'description'       => 'Point to a valid screenshot image to be used as "how your site looks' .
                         ' on mobile"',
                     'default'           => false,
+                    'filter'            => function($value) {
+                        return 'false' == strtolower($value) ? false : $value;
+                    },
                     'validator'         => function($value) {
                         if(false !== $value && !is_file($value)) {
-                            throw new \Exception('Value must either false, or a path to a valid file');
+                            throw new \Exception('Value must either be false, or a path to a valid file');
                         }
                         return $value;
                     }
