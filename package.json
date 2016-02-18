@@ -1,0 +1,20 @@
+{
+  "name": "imager",
+  "version": "1.0.0",
+  "description": "ImageMagick automator",
+  "main": "npm/index.js",
+  "bin": "./npm/bin/imager",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TonyBogdanov/imager.git"
+  },
+  "author": "Tony Bogdanov <tonybogdanov@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/TonyBogdanov/imager/issues"
+  },
+  "homepage": "https://github.com/TonyBogdanov/imager#readme",
+  "dependencies": {
+    "shelljs": "^0.6.0"
+  }
+}

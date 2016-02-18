@@ -1,0 +1,23 @@
+{
+  "name": "imager",
+  "authors": [
+    "Tony Bogdanov <tonybogdanov@gmail.com>"
+  ],
+  "description": "ImageMagick automator",
+  "main": "build/imager.phar",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "node_modules",
+    "project_files",
+    "src",
+    "build.php"
+  ],
+  "devDependencies": {
+    "Aura.Autoload": "auraphp/Aura.Autoload#^2.0.3",
+    "console": "Symfony/console#^3.0.1"
+  }
+}
