@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-//var shell   = require("shelljs");
-//var phar    = process.argv[1].split(/\\|\//).slice(0, -3).join('/') + '/build/faviconr.phar';
+var shell   = require("shelljs");
+var phar    = process.argv[1].split(/\\|\//).slice(0, -3).join('/') + '/build/imager.phar';
 
-//shell.exec('php "' + phar + '"' + (2 < process.argv.length ? ' ' + process.argv.slice(2).join(' ') : ''));
+shell.exec('php "' + phar + '"' + (2 < process.argv.length ? ' ' + process.argv.slice(2).join(' ') : ''));
