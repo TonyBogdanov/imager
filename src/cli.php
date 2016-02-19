@@ -111,6 +111,7 @@ $console
                     $output->write(PHP_EOL);
                 }
             }
+            $output->write(PHP_EOL);
         }
 
         if($question->ask($input, $output, new ConfirmationQuestion('Would you like to specify which bundles' .

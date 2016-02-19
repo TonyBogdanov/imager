@@ -6,8 +6,11 @@ Console tool for batch generation of images using [ImageMagick](http://www.image
 
 ## Disclaimer
 
-For now, this is a "private" project, e.g. it is very specific to my needs and is not targeted towards general use. You can
-still do whatever you want with it if you find it useful.
+For now, this is a "private" project, e.g. it is very specific to my needs and is not targeted towards general use.
+You can still do whatever you want with it if you find it useful.
+
+I, personally, am going to use this tool to generate template / theme covers and thumbnails, thus those will be the
+built-in bundles you'll find. You can always make your own bundles.
 
 ## Requirements
 

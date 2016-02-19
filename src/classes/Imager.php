@@ -15,6 +15,7 @@ use Imager\Bundle\BundleAlreadyRegisteredException;
 use Imager\Bundle\BundleNotRegisteredException;
 use Imager\Bundle\InvalidBundleException;
 use Imager\Bundle\TBCover;
+use Imager\Bundle\TBThumbnail;
 
 class Imager
 {
@@ -50,6 +51,7 @@ class Imager
     public function __construct()
     {
         $this->registerBundle(TBCover::class);
+        $this->registerBundle(TBThumbnail::class);
     }
 
     /**
