@@ -15,54 +15,48 @@ class TBCover extends AbstractBundle
     /**
      * @var string
      */
-    protected $sourceDir;
+    protected $sourceDir                = null;
 
     /**
      * @var string
      */
-    protected $targetDir;
+    protected $targetDir                = null;
 
     /**
      * @var string
      */
-    protected $targetFilename;
+    protected $targetFilename           = null;
 
     /**
-     * @param $path
-     * @return TBCover
-     * @throws \Exception
+     * @var array
      */
-    protected function createDirectories($path)
-    {
-        if(is_dir($path)) {
-            return $this;
-        }
-
-        $this->createDirectories(dirname($path));
-
-        if(!@mkdir($path)) {
-            throw new \Exception('Could not create directory: ' . $path);
-        }
-
-        return $this;
-    }
+    protected $temps                    = [];
 
     /**
      * @param $name
+     * @param null $source
      * @return string
      */
-    protected function temp($name)
+    protected function temp($name, $source = null)
     {
-        return $this->target('--' . substr(md5($name), 0, 8) . '.' . pathinfo($name, PATHINFO_EXTENSION));
+        $temp                           = $this->target('--' . substr(md5($name), 0, 16) . '.' .
+            pathinfo($name, PATHINFO_EXTENSION));
+
+        if(isset($source) && !is_file($temp)) {
+            @copy($source, $temp);
+        }
+
+        $this->temps[]                  = $temp;
+        return $temp;
     }
 
     /**
-     * @param null $path
+     * @param $path
      * @return string
      */
-    protected function source($path = null)
+    protected function source($path)
     {
-        return $this->sourceDir . $path;
+        return $this->temp('source-' . basename($path), $this->sourceDir . $path);
     }
 
     /**
@@ -130,6 +124,21 @@ class TBCover extends AbstractBundle
                 'dimension'             => function($value) {
                     return (int) $value;
                 },
+                'file'                  => function($value) {
+                    if(false === $value) {
+                        return false;
+                    } else if(is_string($value)) {
+                        if('false' == $value) {
+                            return false;
+                        }
+
+                        $realPath       = realpath($value);
+                        if(false !== $realPath) {
+                            return $realPath;
+                        }
+                    }
+                    return $value;
+                }
             );
 
             $validators                 = array(
@@ -152,76 +161,82 @@ class TBCover extends AbstractBundle
                     }
                     return $value;
                 },
+                'file'                  => function($value) {
+                    if(false !== $value && (!is_string($value) || !is_file($value))) {
+                        throw new \Exception('Value must either be false, or a path to a valid file');
+                    }
+                    return $value;
+                },
             );
 
             $this->optionDefinitions    = array(
                 'width'                 => array(
-                    'description'       => 'Choose the width of the cover image (in pixels)',
+                    'description'       => 'Width of the cover image (in pixels)',
                     'default'           => 590,
                     'filter'            => $filters['dimension'],
                     'validator'         => $validators['dimension'],
                 ),
                 'height'                => array(
-                    'description'       => 'Choose the height of the cover image (in pixels)',
+                    'description'       => 'Height of the cover image (in pixels)',
                     'default'           => 300,
                     'filter'            => $filters['dimension'],
                     'validator'         => $validators['dimension'],
                 ),
                 'background-color'      => array(
-                    'description'       => 'Choose the background color of the cover image',
+                    'description'       => 'Background color of the cover image',
                     'default'           => '#1e2627',
                     'filter'            => $filters['color'],
                     'validator'         => $validators['color'],
                 ),
                 'mountain-color'        => array(
-                    'description'       => 'Choose the color of the mountain fragment',
+                    'description'       => 'Color of the mountain fragment',
                     'default'           => '#00cae9',
                     'filter'            => $filters['color'],
                     'validator'         => $validators['color'],
                 ),
                 'version-color'         => array(
-                    'description'       => 'Choose the color of the version number pad',
+                    'description'       => 'Color of the version number pad',
                     'default'           => '#00cae9',
                     'filter'            => $filters['color'],
                     'validator'         => $validators['color'],
                 ),
                 'logo'                  => array(
-                    'description'       => 'Choose the logo name to use (can be "html", "wordpress" or false)',
+                    'description'       => 'Logo to use (can be "html", "wordpress", "polymer" or false)',
                     'default'           => 'html',
                     'validator'         => function($value) {
-                        if(!in_array($value, array('html', 'wordpress', false), true)) {
-                            throw new \Exception('Value must be one of "html", "wordpress" or false');
+                        if(!in_array($value, array('html', 'wordpress', 'polymer', false), true)) {
+                            throw new \Exception('Value must be one of "html", "wordpress", "polymer" or false');
                         }
                         return $value;
                     },
                 ),
                 'desktop-screenshot'    => array(
-                    'description'       => 'Point to a valid screenshot image to be used as "how your site looks' .
+                    'description'       => 'Valid screenshot image path to be used as "how your item looks' .
                         ' on desktop"',
                     'default'           => false,
-                    'filter'            => function($value) {
-                        return 'false' == strtolower($value) ? false : $value;
-                    },
-                    'validator'         => function($value) {
-                        if(false !== $value && !is_file($value)) {
-                            throw new \Exception('Value must either be false, or a path to a valid file');
-                        }
-                        return $value;
-                    }
+                    'filter'            => $filters['file'],
+                    'validator'         => $validators['file'],
+                ),
+                'desktop-background'    => array(
+                    'description'       => 'Desktop screenshot background color to fill any areas not covered' .
+                        ' by the image',
+                    'default'           => '#fff',
+                    'filter'            => $filters['color'],
+                    'validator'         => $validators['color'],
                 ),
                 'mobile-screenshot'     => array(
-                    'description'       => 'Point to a valid screenshot image to be used as "how your site looks' .
+                    'description'       => 'Valid screenshot image path to be used as "how your item looks' .
                         ' on mobile"',
                     'default'           => false,
-                    'filter'            => function($value) {
-                        return 'false' == strtolower($value) ? false : $value;
-                    },
-                    'validator'         => function($value) {
-                        if(false !== $value && !is_file($value)) {
-                            throw new \Exception('Value must either be false, or a path to a valid file');
-                        }
-                        return $value;
-                    }
+                    'filter'            => $filters['file'],
+                    'validator'         => $validators['file'],
+                ),
+                'mobile-background'     => array(
+                    'description'       => 'Mobile screenshot background color to fill any areas not covered' .
+                        ' by the image',
+                    'default'           => '#fff',
+                    'filter'            => $filters['color'],
+                    'validator'         => $validators['color'],
                 ),
                 'title'                 => array(
                     'description'       => 'Cover title',
@@ -253,17 +268,28 @@ class TBCover extends AbstractBundle
         return $this->optionDefinitions;
     }
 
+    public function __destruct()
+    {
+        foreach(array_unique($this->temps) as $temp) {
+            @unlink($temp);
+        }
+    }
+
     /**
      * @param array $environment
-     * @return TBCover
+     * @return $this
+     * @throws BundleOptionDoesNotExistException
+     * @throws BundleOptionHasNoValueException
+     * @throws \Exception
      */
     public function execute(array $environment = array())
     {
-        // Ensure deepest target directory exists
-        $this->createDirectories(dirname($environment['dest']));
+        if(false === realpath(dirname($environment['dest']))) {
+            throw new \Exception('Path "' . dirname($environment['dest']) . '" must be a valid directory');
+        }
 
         // Define paths
-        $this->sourceDir            = realpath(dirname(__FILE__) . '/../../bundles/cover') . DIRECTORY_SEPARATOR;
+        $this->sourceDir            = IMAGER_ABSPATH . 'bundles/cover/';
         $this->targetDir            = realpath(dirname($environment['dest'])) . DIRECTORY_SEPARATOR;
         $this->targetFilename       = basename($environment['dest']);
 
@@ -278,7 +304,7 @@ class TBCover extends AbstractBundle
 
         // Calculations
         $mountainOffset             = 50 * $height / $baseHeight;
-        $logoPadding                = 0.08 * $height;
+        $logoPadding                = 0.05 * $height;
         $desktopWidth               = 340 * $width / $baseWidth;
         $desktopInnerWidth          = $desktopWidth * (3072 / 3379);
         $desktopPadding             = 5 * $width / $baseWidth;
@@ -339,6 +365,9 @@ class TBCover extends AbstractBundle
                         ->merge($this->command()
                             ->open($this->getOption('desktop-screenshot'))
                             ->resize($desktopInnerWidth)
+                            ->flush()
+                            ->background($this->getOption('desktop-background'))
+                            ->extent(null, $height)
                             ->save($this->temp('desktop-screenshot.png')))
                         ->offset($desktopInnerPadding[0], $desktopInnerPadding[1])
                         ->flush()
@@ -372,6 +401,9 @@ class TBCover extends AbstractBundle
                         ->merge($this->command()
                             ->open($this->getOption('mobile-screenshot'))
                             ->resize($mobileInnerWidth)
+                            ->flush()
+                            ->background($this->getOption('mobile-background'))
+                            ->extent(null, $height)
                             ->save($this->temp('mobile-screenshot.png')))
                         ->offset($mobileInnerPadding[0], $mobileInnerPadding[1])
                         ->flush()
@@ -541,36 +573,6 @@ class TBCover extends AbstractBundle
 
             ->save($this->target());
 
-        // Cleanup
-        unlink($this->temp('mountain.png'));
-        unlink($this->temp('logo.png'));
-        unlink($this->temp('logo-up.png'));
-        unlink($this->temp('logo-up-mask.png'));
-        unlink($this->temp('logo-down.png'));
-        unlink($this->temp('desktop-shadow.png'));
-        unlink($this->temp('desktop-screenshot.png'));
-        unlink($this->temp('desktop-mask.png'));
-        unlink($this->temp('desktop-screenshot-mask.png'));
-        unlink($this->temp('desktop-raw.png'));
-        unlink($this->temp('desktop.png'));
-        unlink($this->temp('mobile-shadow.png'));
-        unlink($this->temp('mobile-screenshot.png'));
-        unlink($this->temp('mobile-mask.png'));
-        unlink($this->temp('mobile-screenshot-mask.png'));
-        unlink($this->temp('mobile-raw.png'));
-        unlink($this->temp('mobile-screen.png'));
-        unlink($this->temp('mobile.png'));
-        unlink($this->temp('title.png'));
-        unlink($this->temp('sub-title.png'));
-        unlink($this->temp('footer.png'));
-        unlink($this->temp('version.png'));
-        unlink($this->temp('version-left.png'));
-        unlink($this->temp('version-right.png'));
-        unlink($this->temp('version-padded.png'));
-        unlink($this->temp('version-qr.png'));
-        unlink($this->temp('alert.png'));
-
-        echo PHP_EOL . 'Done.' . PHP_EOL;
         return $this;
     }
 }

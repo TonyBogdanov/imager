@@ -33,7 +33,7 @@ function scan($path, $root = null) {
     return $result;
 }
 
-@unlink('build/faviconr.phar');
+@unlink('build/imager.phar');
 
 $paths              = array(
     'bower_components/Aura.Autoload/src',

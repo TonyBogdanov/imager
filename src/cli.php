@@ -12,6 +12,8 @@ if('cli' != php_sapi_name()) {
     return;
 }
 
+define('IMAGER_ABSPATH', __DIR__ . DIRECTORY_SEPARATOR);
+
 require_once(dirname(__FILE__) . '/autoload.php');
 
 use Symfony\Component\Console\Application;
@@ -158,10 +160,11 @@ $console
 
         if($question->ask($input, $output, new ConfirmationQuestion('Looks good? [Y/n]' . PHP_EOL . PHP_EOL .
             $result . PHP_EOL, true))) {
-            if(@file_put_contents($filename, $result)) {
+            if(@file_put_contents(realpath('.') . DIRECTORY_SEPARATOR . $filename, $result)) {
                 $output->writeln('Done.');
             } else {
-                $output->writeln(sprintf('Could not write to <info>%s</info>.'), $filename);
+                $output->writeln(sprintf('Could not write to <info>%s</info>.'), realpath('.') . DIRECTORY_SEPARATOR .
+                    $filename);
             }
         }
     });
@@ -192,10 +195,11 @@ $console
         }
 
         if(empty($json)) {
-            $json       = realpath('imager.json');
+            $json       = 'imager.json';
         }
+        $json           = realpath($json);
 
-        if(is_file($json)) {
+        if(false !== $json && is_file($json)) {
             $json       = @json_decode(file_get_contents($json), true);
             $options    = is_array($json) ? array_replace($json, $options) : $options;
         }
