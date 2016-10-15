@@ -161,6 +161,8 @@ class TBThumbnail extends TBCover
         $logoPadding                = 0.05 * $height;
 
         // Mountain
+        var_dump($this->command()->open($this->source('mountain.svg'))->__toString());
+        exit;
         $mountain                   = $this->command()
             ->create($width, $height)
             ->merge($this->command()
