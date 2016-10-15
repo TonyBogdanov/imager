@@ -244,7 +244,7 @@ class TBThumbnail extends TBCover
             ->merge($this->command()
                 ->background()
                 ->fill('#fff')
-                ->label(strtoupper($this->getOption('sub-title')), 6 * $scale, 'C:\Windows\Fonts\arialb.ttf')
+                ->label(strtoupper($this->getOption('sub-title')), 6 * $scale, 'C:\Windows\Fonts\arialbd.ttf')
                 ->save($this->temp('sub-title.png')))
             ->align('center', 'middle')
             ->offset(0, 6 * $scale)
